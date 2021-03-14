@@ -50,31 +50,32 @@ import './App.css';
     //  console.log(event.target.value)
     // }
     
-    return (
-      <div>
-        <h1>My Hacker Stories</h1>
-        <InputWithLabel
-        id='search'
-        value={searchTerm}
-        onInputChange={handleSearch}
-        >
-          <strong>Search:</strong>
-        <hr />
-        <List list={stories} />
-  
-      </div>
-    )
-    // const searchedStories = stories.filter(function(story) {
-    //   return story.title
-    //   .toLowerCase()
-    //   .includes(searchTerm.toLowerCase())
-    // })
-  }
-  const Search = props => (
-    <div> 
-     <label htmlFor="search">Search: </label>
-     <input id='search' type='text' onChange={props.onSearch}/>
-    </div>
-  )
+    const handleFetchStories = React.useCallback(() => {
+      if (!searchTerm) return;
+
+      dispatchStories({ type : 'STORIES_FETCH_INIT' });
+
+      fetch(`${API_ENDPOINT}${SEARCHTERM}`)
+      .then(response => response.json())
+      .then(result => {
+        dispatchStories({
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.hits,
+        }),
+      }),
+      .catch(() =>
+      dispatchStories({type: 'STORIES_FETCH_FAILURE'});
+      );
+    }, [searchTerm]);
+  React.useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
+};
+  // const Search = props => (
+  //   <div> 
+  //    <label htmlFor="search">Search: </label>
+  //    <input id='search' type='text' onChange={props.onSearch}/>
+  //   </div>
+  // )
   
   export default App;
